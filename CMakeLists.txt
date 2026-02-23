@@ -3,4 +3,4 @@ project(unix_tools C)
 
 set(CMAKE_C_STANDARD 17)
 
-add_executable(unix_tools cat.c)
+add_executable(unix_tools src/tools/cat.c)
