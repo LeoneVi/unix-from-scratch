@@ -12,10 +12,18 @@ int main(int argc, char *argv[]) {
     int fd;
     fd = open(argv[1], O_RDONLY, 0);
 
+    char *t;
     if(fd == -1){
         write(2, "cat: ", sizeof("cat: "));
-        write(2, argv[1], sizeof(argv[1]));
+        /* t = argv[1] copies the pointer value of argv[1] to t
+         * *t will check if current character is null
+         * t++ moves char forward one byte in memory
+         */
+        for(t = argv[1]; *t != '\0'; t++ ){
+            write(2, t, 1);
+        }
         write(2, ": No such file or directory\n",  sizeof(": No such file or directory\n"));
+        return 1;
     }
 
     int n;
