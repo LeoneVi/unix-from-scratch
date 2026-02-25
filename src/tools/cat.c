@@ -8,6 +8,11 @@ int write(int fd, char *buf, int n);
 
 int main(int argc, char *argv[]) {
 
+    if(argc < 2){
+        write(1, "Basic usage: cat [file_name]\n", sizeof("Basic usage: cat [file_name]\n"));
+        return 1;
+    }
+
     char buf[BUFSIZ];
     int fd;
     fd = open(argv[1], O_RDONLY, 0);
@@ -29,6 +34,7 @@ int main(int argc, char *argv[]) {
     while( (n = read(fd, buf,BUFSIZ)) > 0){
         write(1, buf, n);
     }
+    write(1, "\n", 1);
 
     return 0;
 }
