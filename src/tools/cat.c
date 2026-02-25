@@ -1,5 +1,4 @@
 #include <fcntl.h>
-#include <sys/syscall.h>
 
 #define BUFSIZ 4096
 
