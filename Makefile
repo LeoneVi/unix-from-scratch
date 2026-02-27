@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11
+DEPS = $(INC_DIR)/dirent.h
 
 BIN_DIR := ./bin
 SRC_DIR := ./src/tools
