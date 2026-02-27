@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
     while((dp = readdir(dirp)) != EMPTY){
         if(strcmp(dp->d_name, ".") == 0 ||
            strcmp(dp->d_name, "..") == 0 ||
-           dp->d_name[0] == '.'
+           dp->d_name[0] == '.' // skip hidden files
         ){
             continue;
         }
