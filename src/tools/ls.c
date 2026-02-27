@@ -1,4 +1,3 @@
-#include <sys/dir.h>
 #include <string.h>
 #include <stdio.h>
 #include <dirent.h>
