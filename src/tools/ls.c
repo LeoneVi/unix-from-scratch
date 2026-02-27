@@ -24,4 +24,6 @@ int main(int argc, char *argv[]){
 
     printf("\n");
     closedir(dirp);
+
+    return 0;
 }
