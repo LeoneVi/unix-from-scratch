@@ -22,10 +22,10 @@ void printLines(char *file, int count){
     int n;
     int loopComplete = 0;
     while( (n = read(fd, buf, BUFFERSIZE)) > 0 && loopComplete == 0){
-        for(int i = 0; i < n - 1; i++){
-            printf("current buf: %c\n", buf[i]);
+        for(int i = 0; i < n; i++){
+         //   printf("current buf: %c\n", buf[i]);
             if(buf[i] == '\n') newline++;
-            printf("LINE COUNT: %d\n", newline);
+           // printf("LINE COUNT: %d\n", newline);
             if(newline == count){ // if line count is reach, print everything we just read
                 write(1, buf, i);
                 loopComplete = 1;
