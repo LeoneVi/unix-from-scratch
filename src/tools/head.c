@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 #define BUFFERSIZE 8
 
@@ -44,35 +45,43 @@ int isCommand(char *arg){
 
 int main(int argc, char *argv[]){
 
-    switch(argc){
-        case 0:
-        case 1:
-            fprintf(stderr, "Basic usage: head [-n count | -c bytes] [file ...]\n");
-            exit(1);
-        case 2:
-            char *arg1 = (char *)malloc(sizeof(argv[1]));
-            strcpy(arg1, argv[1]);
-
-            if(isCommand(arg1)){
-                if(argc == 2){
-                    arg1++;
-                    fprintf(stderr, "head: option requires an argument -- %s\n"
-                                    "usage: head [-n lines | -c bytes] [file ...]\n", arg1);
-                    free(arg1);
-                    exit(1);
-                }
-
-            } else {
-                if(arg1[0] == '-' && strlen(arg1) > 1){ // if user enters command that does not exist
-                    arg1++;
-                    fprintf(stderr, "head: invalid option -- %s\n"
-                                    "usage: head [-n lines | -c bytes] [file ...]\n", arg1);
-                    free(arg1);
-                    exit(1);
-                }
-
-                // When user only inputs a file, head prints the first 10 lines.
-                printLines(argv[1], 10);
-            }
+    if(argc < 2){
+        fprintf(stderr, "Basic usage: head [-n count | -c bytes] [file ...]\n");
+        exit(1);
     }
+
+    int default_lines = 10;
+
+    for(int i = 1; i < argc; i++){
+        char *cmd = argv[i];
+        if(isCommand(cmd)) {
+            if(i + 1 > argc){
+                char *cmd2 = argv[i + 1];
+                if(isdigit(*cmd2)){
+
+                } else {
+                    fprintf(stderr, "head: illegal line count -- %s", cmd2);
+                    exit(1);
+                }
+            } else {
+                fprintf(stderr, "head: option requires an argument -- %s\n"
+                                "usage: head [-n lines | -c bytes] [file ...]\n", cmd);
+                exit(1);
+            }
+        } else {
+            // When user only inputs a file, head prints the default amount of lines
+            printLines(argv[1], default_lines);
+        }
+        /*
+        if(cmd[0] == '-' && strlen(cmd) > 1){ // if user enters command that does not exist
+            cmd++;
+            fprintf(stderr, "head: invalid option -- %s\n"
+                            "usage: head [-n lines | -c bytes] [file ...]\n", cmd);
+            free(cmd);
+            exit(1);
+        }
+         */
+
+    }
+
 }
