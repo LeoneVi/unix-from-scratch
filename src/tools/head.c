@@ -42,7 +42,7 @@ void printLines(int fd, int count){
 
 void printBytes(int fd, int count){
     char buf[BUFFERSIZE];
-    int byte_cnt = 0; // amount of \n we come across
+    int byte_cnt = 0;
     int n;
     int loop_complete = 0;
     while( (n = read(fd, buf, BUFFERSIZE)) > 0 && !loop_complete){
