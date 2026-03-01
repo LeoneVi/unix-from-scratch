@@ -17,8 +17,7 @@ int handleFile(char *file){
     return fd;
 }
 
-void printLines(char *file, int count){
-    int fd = handleFile(file);
+void printLines(int fd, int count){
     char buf[BUFFERSIZE];
     int newline = 0; // amount of \n we come across
     int n;
@@ -27,18 +26,16 @@ void printLines(char *file, int count){
         for(int i = 0; i < n; i++){
             if(buf[i] == '\n') newline++;
             if(newline == count){ // if line count is reach, print everything we just read
-                write(1, buf, i);
+                write(1, buf, i + 1);
                 loopComplete = 1;
                 break;
             }
         }
         if(newline != count) write(1, buf, n); // print every 8 bytes
     }
-    write(1, "\n", sizeof("\n"));
 }
 
-void printBytes(char *file, int count){
-    int fd = handleFile(file);
+void printBytes(int fd, int count){
     char buf[BUFFERSIZE];
     int byte_cnt = 0;
     int n;
@@ -54,7 +51,6 @@ void printBytes(char *file, int count){
         }
         if(byte_cnt != count) write(1, buf, n); // print every 8 bytes
     }
-    write(1, "\n", sizeof("\n"));
 }
 
 int isCommand(char *arg){
@@ -93,7 +89,10 @@ int main(int argc, char *argv[]){
         } else if(commandDNE(argv[1])){
             exit(1);
         }
-        printLines( argv[1], default_lines);
+        int fd = handleFile(argv[1]);
+        printLines(fd, default_lines);
+        close(fd);
+        exit(0);
     }
 
     int intValue;
@@ -124,26 +123,19 @@ int main(int argc, char *argv[]){
         } else if (commandDNE(curr)){
             exit(1);
         } else {
-            // Handle files
+            // PARSING FILE INFO
             int fileCnt = argc - i;
-            char *file = argv[i];
-            if(fileCnt == 0){
-                fprintf(stderr, BASIC_USAGE);
-                exit(1);
-            } else if(fileCnt == 1){
+            for(int j = 0; j < fileCnt; j++){
+                int file = handleFile(argv[i + j]);
+                if(fileCnt != 1) printf("==> %s <==\n", argv[i + j]);
                 if(isN) printLines(file, intValue);
                 else if(isC) printBytes(file, intValue);
                 else printLines(file, default_lines);
-            } else {
-                for(int j = 0; j < fileCnt; j++){
-                    printf("==> %s <==\n", file);
-                    if(isN) printLines(file, intValue);
-                    else if(isC) printBytes(file, intValue);
-                    else printLines(file, default_lines);
-                    i += j;
-                }
+                close(file);
+                if(fileCnt != 1 && fileCnt - j != 1) printf("\n");
             }
-        }
+            i += fileCnt;
+        } // end of else
     } // end of for loop
 
     exit(0);
