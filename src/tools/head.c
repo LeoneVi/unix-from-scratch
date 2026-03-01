@@ -45,12 +45,12 @@ void printBytes(char *file, int count){
     int loopComplete = 0;
     while( (n = read(fd, buf, BUFFERSIZE)) > 0 && loopComplete == 0){
         for(int i = 0; i < n; i++){
-            byte_cnt++;
             if(byte_cnt == count){ // if line count is reach, print everything we just read
                 write(1, buf, i);
                 loopComplete = 1;
                 break;
             }
+            byte_cnt++;
         }
         if(byte_cnt != count) write(1, buf, n); // print every 8 bytes
     }
