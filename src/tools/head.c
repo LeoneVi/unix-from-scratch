@@ -23,16 +23,16 @@ void printLines(char *file, int count){
     int loopComplete = 0;
     while( (n = read(fd, buf, BUFFERSIZE)) > 0 && loopComplete == 0){
         for(int i = 0; i < n; i++){
-         //   printf("current buf: %c\n", buf[i]);
             if(buf[i] == '\n') newline++;
-           // printf("LINE COUNT: %d\n", newline);
             if(newline == count){ // if line count is reach, print everything we just read
                 write(1, buf, i);
                 loopComplete = 1;
+                break;
             }
         }
-        write(1, buf, n);
+        if(newline != count) write(1, buf, n); // print every 8 bytes
     }
+    write(1, "\n", sizeof("\n"));
 }
 
 int main(int argc, char *argv[]){
@@ -47,6 +47,7 @@ int main(int argc, char *argv[]){
     if(strcmp(arg1, "-n") == 0 ||
        strcmp(arg1, "-c") == 0) // if user used command
     {
+
 
     } else {
         if(arg1[0] == '-' && strlen(arg1) > 1){ // if user enters command that does not exist
