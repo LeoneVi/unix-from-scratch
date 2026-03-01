@@ -6,12 +6,17 @@
 #include <ctype.h>
 
 #define BUFFERSIZE 8
+#define NO_FILE "head: %s: No such file or directory\n"
 #define BASIC_USAGE "Basic usage: head [-n count | -c bytes] [file ...]\n"
+#define ILLEGAL_COUNT "head: illegal %s count -- %d\n"
+#define CANT_COMBINE "head: can't combine line and byte counts\n"
+#define REQUIRES_ARGUMENT "head: option requires an argument -- %s\nusage: head [-n lines | -c bytes] [file ...]\n"
+#define INVALID_OPTION "head: invalid option -- %s\nusage: head [-n lines | -c bytes] [file ...]\n"
 
 int handleFile(char *file){
     int fd;
     if((fd = open(file, O_RDONLY, 0)) == -1){
-        fprintf(stderr, "head: %s: No such file or directory\n", file);
+        fprintf(stderr, NO_FILE, file);
         exit(1);
     }
     return fd;
@@ -21,35 +26,35 @@ void printLines(int fd, int count){
     char buf[BUFFERSIZE];
     int newline = 0; // amount of \n we come across
     int n;
-    int loopComplete = 0;
-    while( (n = read(fd, buf, BUFFERSIZE)) > 0 && loopComplete == 0){
+    int loop_complete = 0;
+    while( (n = read(fd, buf, BUFFERSIZE)) > 0 && !loop_complete){
         for(int i = 0; i < n; i++){
             if(buf[i] == '\n') newline++;
-            if(newline == count){ // if line count is reach, print everything we just read
+            if(newline == count) {
                 write(1, buf, i + 1);
-                loopComplete = 1;
+                loop_complete = 1;
                 break;
             }
         }
-        if(newline != count) write(1, buf, n); // print every 8 bytes
+        if(newline != count) write(1, buf, n);
     }
 }
 
 void printBytes(int fd, int count){
     char buf[BUFFERSIZE];
-    int byte_cnt = 0;
+    int byte_cnt = 0; // amount of \n we come across
     int n;
-    int loopComplete = 0;
-    while( (n = read(fd, buf, BUFFERSIZE)) > 0 && loopComplete == 0){
+    int loop_complete = 0;
+    while( (n = read(fd, buf, BUFFERSIZE)) > 0 && !loop_complete){
         for(int i = 0; i < n; i++){
-            if(byte_cnt == count){ // if line count is reach, print everything we just read
-                write(1, buf, i);
-                loopComplete = 1;
+            byte_cnt++;
+            if(byte_cnt == count) {
+                write(1, buf, i + 1);
+                loop_complete = 1;
                 break;
             }
-            byte_cnt++;
         }
-        if(byte_cnt != count) write(1, buf, n); // print every 8 bytes
+        if(byte_cnt != count) write(1, buf, n);
     }
 }
 
@@ -65,8 +70,7 @@ int commandDNE(char *arg){
     char *t = arg;
     if(t[0] == '-' && strlen(t) > 1){
         t++;
-        fprintf(stderr, "head: invalid option -- %s\n"
-                        "usage: head [-n lines | -c bytes] [file ...]\n", t);
+        fprintf(stderr, INVALID_OPTION, t);
         return 1;
     }
     return 0;
@@ -84,7 +88,7 @@ int main(int argc, char *argv[]){
         if(isCommand(argv[1])){
             char *t = argv[1];
             t++;
-            printf("head: option requires an argument -- %s\nusage: head [-n lines | -c bytes] [file ...]\n", t);
+            fprintf(stderr, REQUIRES_ARGUMENT, t);
             exit(1);
         } else if(commandDNE(argv[1])){
             exit(1);
@@ -101,24 +105,30 @@ int main(int argc, char *argv[]){
     for(int i = 1; i < argc; i++) {
         char *curr = argv[i];
         if(isCommand(curr)){ // PARSE COMMANDS
+
+            if(strcmp(curr, "-n") == 0) isN = 1;
+            else if(strcmp(curr, "-c") == 0) isC = 1;
+            if(isN && isC){
+                fprintf(stderr, CANT_COMBINE);
+                exit(1);
+            }
+
             if(i + 1 < argc){
                 char *next = argv[i + 1];
                 i += 1;
                 if(commandDNE(next)){
                     exit(1);
                 } else if (isdigit(*next)) {
-                    intValue = *next - '0';
+                    intValue = atoi(next);
+                    if(intValue == 0){
+                        fprintf(stderr, ILLEGAL_COUNT, isN ? "line" : "byte", intValue);
+                        exit(1);
+                    }
                 } else {
                     fprintf(stderr, BASIC_USAGE);
                     exit(1);
                 }
 
-                if(strcmp(curr, "-n") == 0) isN = 1;
-                else if(strcmp(curr, "-c") == 0) isC = 1;
-                if(isN && isC){
-                    fprintf(stderr, "head: can't combine line and byte counts\n");
-                    exit(1);
-                }
             }
         } else if (commandDNE(curr)){
             exit(1);
@@ -137,6 +147,5 @@ int main(int argc, char *argv[]){
             i += fileCnt;
         } // end of else
     } // end of for loop
-
     exit(0);
 }
