@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
         for(t = argv[i]; *t != '\0'; t++){
             write(1, t, 1);
         }
+        if(i != argc-1) write(1, " ", 1);
     }
     write(1, "\n", 1);
 
