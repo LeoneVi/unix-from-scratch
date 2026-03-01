@@ -55,7 +55,6 @@ int commandDNE(char *arg){
         t++;
         fprintf(stderr, "head: invalid option -- %s\n"
                         "usage: head [-n lines | -c bytes] [file ...]\n", t);
-        free(t);
         return 1;
     }
     return 0;
@@ -67,25 +66,13 @@ int main(int argc, char *argv[]){
         fprintf(stderr, BASIC_USAGE);
         exit(1);
     }
-    /*
-     * ➜  ~ head -c -n
-    head: illegal byte count -- -n
-    ➜  ~ head -n -c
-    head: illegal line count -- -c
-    ➜  ~ head -n -
-    head: illegal line count -- -
-    ➜  ~ head -n - -n 10
-    head: illegal line count -- -
-     ➜  ~    head -n 2 data.c
-     ➜  ~    head -n 2 data.c data.c
-     */
-
-    // if user only inputted a file
 
     int default_lines = 10;
-    if(2 == argc) {
+    if(2 == argc) { // if user only inputted a file
         if(isCommand(argv[1])){
-            printf("head: option requires an argument -- %s\nusage: head [-n lines | -c bytes] [file ...]\n", argv[1]);
+            char *t = argv[1];
+            t++;
+            printf("head: option requires an argument -- %s\nusage: head [-n lines | -c bytes] [file ...]\n", t);
             exit(1);
         } else if(commandDNE(argv[1])){
             exit(1);
@@ -99,8 +86,7 @@ int main(int argc, char *argv[]){
     for(int i = 1; i < argc; i++) {
         char *curr = argv[i];
 
-        // Parse commands
-        if(isCommand(curr)){
+        if(isCommand(curr)){ // PARSE COMMANDS
             if(i + 1 >= argc){
                 char *next = argv[i + 1];
                 i += 1;
@@ -120,29 +106,29 @@ int main(int argc, char *argv[]){
                     fprintf(stderr, "head: can't combine line and byte counts\n");
                     exit(1);
                 }
-
+                continue; // next iteration
             }
         } else if (commandDNE(curr)){
             exit(1);
-        }
-
-
-        // Handle files
-        int fileCnt = argc - i;
-        char *file = argv[i];
-        if(fileCnt == 0){
-            fprintf(stderr, BASIC_USAGE);
-            exit(1);
-        } else if(fileCnt == 1){
-            if(isN) printLines(file, intValue);
-            else printLines(file, default_lines);
         } else {
-            printf("==> %s <==\n", file);
-            if(isN) printLines(file, intValue);
-            else printLines(file, default_lines);
+            // Handle files
+            int fileCnt = argc - i;
+            char *file = curr;
+            if(fileCnt == 0){
+                fprintf(stderr, BASIC_USAGE);
+                exit(1);
+            } else if(fileCnt == 1){
+                if(isN) printLines(file, intValue);
+                else printLines(file, default_lines);
+            } else {
+                printf("==> %s <==\n", file);
+                if(isN) printLines(file, intValue);
+                else printLines(file, default_lines);
+            }
         }
-    }
+    } // end of for loop
 
+    exit(0);
 }
 
     /*
