@@ -1,9 +1,11 @@
+#define BASIC_USAGE "Basic usage: echo [string]\n"
+
 int write(int fd, char *buf, int n);
 
 int main(int argc, char *argv[]) {
 
     if(argc < 2){
-        write(1, "Basic usage: echo [string]\n", sizeof("Basic usage: echo [string]\n"));
+        write(1, BASIC_USAGE, sizeof(BASIC_USAGE));
         return 1;
     }
 
