@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
     }
 
     int default_lines = 10;
-    if(2 == argc) { // if user only inputted a file
+    if(argc == 2) { // if user only inputted a file
         if(isCommand(argv[1])){
             char *t = argv[1];
             t++;
